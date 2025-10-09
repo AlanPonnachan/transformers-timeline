@@ -1,69 +1,63 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { parseISO } from 'date-fns';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Search, Moon, Sun, X } from 'lucide-react';
 import Timeline from './components/Timeline';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
+import { debounce } from './utils';
+
+const parseISO = (dateString) => new Date(dateString);
 
 function App() {
   const [allModels, setAllModels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Filter states
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [uniqueModalities, setUniqueModalities] = useState([]);
   const [selectedModalities, setSelectedModalities] = useState([]);
 
-  // Theme state
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  // UI State
+  const [expandedModel, setExpandedModel] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
+  const debouncedSetSearch = useCallback(debounce((value) => {
+    setSearchQuery(value);
+  }, 300), []);
 
   useEffect(() => {
     const fetchModels = async () => {
       try {
         const response = await fetch('./timeline-data.json');
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         
-        const sortedModels = data.models.sort((a, b) => 
-          new Date(a.transformers_date) - new Date(b.transformers_date)
-        );
-
-        setAllModels(sortedModels);
-
-        // Extract unique modalities for the dropdown
-        const modalities = [...new Set(sortedModels.map(model => model.modality_name))];
-        setUniqueModalities(modalities.sort());
-        setSelectedModalities(modalities.sort()); // Initially, select all modalities
-
-        if (sortedModels.length > 0) {
-          setStartDate(sortedModels[0].transformers_date);
-          setEndDate(sortedModels[sortedModels.length - 1].transformers_date);
+        const sorted = data.models.sort((a, b) => new Date(b.transformers_date) - new Date(a.transformers_date));
+        setAllModels(sorted);
+        
+        const modalities = [...new Set(sorted.map(m => m.modality_name))].sort();
+        setUniqueModalities(modalities);
+        setSelectedModalities(modalities);
+        
+        if (sorted.length > 0) {
+          setStartDate(sorted[sorted.length - 1].transformers_date);
+          setEndDate(sorted[0].transformers_date);
         }
-
       } catch (err) {
-        setError(err.message);
+        console.error("Failed to load data:", err);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchModels();
   }, []);
 
   const filteredModels = useMemo(() => {
-    if (!allModels.length) return [];
-    
     return allModels.filter(model => {
       const modelDate = parseISO(model.transformers_date);
       const start = startDate ? parseISO(startDate) : null;
@@ -71,67 +65,96 @@ function App() {
 
       if (start && modelDate < start) return false;
       if (end && modelDate > end) return false;
-      
-      // Updated filtering logic for multiple selections
-      if (selectedModalities.length > 0 && !selectedModalities.includes(model.modality_name)) {
-        return false;
-      }
+      if (selectedModalities.length > 0 && !selectedModalities.includes(model.modality_name)) return false;
+      if (searchQuery && !model.display_name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       
       return true;
     });
-  }, [allModels, startDate, endDate, selectedModalities]);
+  }, [allModels, startDate, endDate, selectedModalities, searchQuery]);
+  
+  const handleToggleExpand = (modelName) => {
+    setExpandedModel(prev => (prev === modelName ? null : modelName));
+  };
 
   if (isLoading) {
-    return <div style={{ padding: '2rem' }}>Loading model data...</div>;
-  }
-
-  if (error) {
-    return <div style={{ padding: '2rem' }}>Error: {error}</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loader"></div>
+        <p>Loading timeline...</p>
+      </div>
+    );
   }
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>🤗 Transformers Model Timeline</h1>
-        <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
-      </header>
-      
-      <div className="filters">
-        <div className="filter-group">
-          <label htmlFor="start-date">Start Date</label>
-          <input 
-            type="date" 
-            id="start-date" 
-            value={startDate}
-            onChange={e => setStartDate(e.target.value)}
-          />
+      <header className="app-header">
+        <div className="header-content">
+          <h1>🤗 Transformers Timeline</h1>
+          <button 
+            className="theme-toggle" 
+            onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
         </div>
-        <div className="filter-group">
-          <label htmlFor="end-date">End Date</label>
-          <input 
-            type="date" 
-            id="end-date" 
-            value={endDate}
-            onChange={e => setEndDate(e.target.value)}
+      </header>
+
+      <div className="filters-bar">
+        <div className="search-box">
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search models by name..."
+            onChange={(e) => debouncedSetSearch(e.target.value)}
           />
+          {searchQuery && (
+            <button className="clear-btn" onClick={() => {
+              setSearchQuery('');
+              document.querySelector('.search-box input').value = '';
+            }}>
+              <X size={16} />
+            </button>
+          )}
         </div>
 
-        <MultiSelectDropdown 
-          label="Filter by Modality"
+        <div className="date-filters">
+          <div className="date-input">
+            <label>From</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className="date-input">
+            <label>To</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <MultiSelectDropdown
+          label="Modality"
           options={uniqueModalities}
           selectedOptions={selectedModalities}
           onChange={setSelectedModalities}
         />
 
-        
-        <div className="status">
-          <p>Showing {filteredModels.length} of {allModels.length} models</p>
+        <div className="results-count">
+          <span className="count">{filteredModels.length}</span>
+          <span className="label">/ {allModels.length} models</span>
         </div>
       </div>
-      
-      <Timeline models={filteredModels} />
+
+      <Timeline 
+        models={filteredModels} 
+        expandedModel={expandedModel}
+        onToggleExpand={handleToggleExpand}
+      />
     </div>
   );
 }

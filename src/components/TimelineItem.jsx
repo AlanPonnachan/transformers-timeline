@@ -1,28 +1,50 @@
 import React from 'react';
-import { format, parseISO } from 'date-fns';
+import { Calendar } from 'lucide-react';
 
-const TimelineItem = ({ model }) => {
-  const formattedDate = format(parseISO(model.transformers_date), 'MMM d, yyyy');
+const formatDate = (date) => {
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const TimelineItem = React.memo(({ model, index, isExpanded, onToggleExpand }) => {
+  const isLeft = index % 2 === 0;
 
   return (
-    <div className="timeline-item">
-      <div 
-        className="timeline-item-content" 
-        style={{'--modality-color': model.modality_color}}
+    <div className={`timeline-item ${isLeft ? 'left' : 'right'}`}>
+      <div
+        className={`timeline-card ${isExpanded ? 'expanded' : ''}`}
+        style={{ '--accent-color': model.modality_color || '#3b82f6' }}
+        onClick={() => onToggleExpand(model.model_name)}
       >
-        <div className="item-header">
-          <h3 className="item-title">{model.display_name}</h3>
-          <time className="item-date">{formattedDate}</time>
+        <div className="card-header">
+          <h3 className="card-title">{model.display_name}</h3>
+          <time className="card-date">
+            <Calendar size={14} />
+            {formatDate(model.transformers_date)}
+          </time>
         </div>
-        <span className="item-modality">{model.modality_name}</span>
-        <p className="item-description">
-          {model.description.substring(0, 200)}...
+
+        <span className="modality-badge">{model.modality_name}</span>
+
+        <p className="card-description">
+          {model.description}
         </p>
-        <div className="timeline-dot"></div>
+        
+        {isExpanded && model.tasks && model.tasks.length > 0 && (
+          <div className="card-tasks">
+            <strong>Tasks:</strong>
+            <div className="task-list">
+              {model.tasks.map(task => (
+                <span key={task} className="task-badge">{task}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="timeline-marker"></div>
       </div>
     </div>
   );
-};
+});
 
-// Use React.memo for performance optimization
-export default React.memo(TimelineItem);
+export default TimelineItem;
