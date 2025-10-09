@@ -617,3 +617,49 @@ body {
     flex-wrap: wrap;
   }
 }
+
+/* --- styles for Markdown rendering --- */
+.card-description p {
+  margin-bottom: 0.75rem;
+}
+
+.card-description p:last-child {
+  margin-bottom: 0;
+}
+
+.card-description a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.card-description a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* Styles for code blocks (```py ... ```) */
+.card-description pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+
+.card-description code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* Styles for inline code (`code`) */
+.card-description p > code {
+  background: var(--bg-secondary);
+  color: var(--accent);
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  border: 1px solid var(--border-color);
+}

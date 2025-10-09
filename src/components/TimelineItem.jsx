@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
+import ReactMarkdown from 'react-markdown'; 
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -26,9 +27,13 @@ const TimelineItem = React.memo(({ model, index, isExpanded, onToggleExpand }) =
 
         <span className="modality-badge">{model.modality_name}</span>
 
-        <p className="card-description">
-          {model.description}
-        </p>
+        {/* --- Replace the <p> tag with the ReactMarkdown component --- */}
+        <div className="card-description">
+          <ReactMarkdown>
+            {model.description}
+          </ReactMarkdown>
+        </div>
+        {/* --- End of replacement --- */}
         
         {isExpanded && model.tasks && model.tasks.length > 0 && (
           <div className="card-tasks">
