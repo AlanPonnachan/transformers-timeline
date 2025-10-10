@@ -49,10 +49,37 @@ body {
 .app-header {
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-color);
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-socials {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-socials a {
+  color: var(--text-secondary);
+  transition: color 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-socials a:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+
 
 .header-content {
   display: flex;

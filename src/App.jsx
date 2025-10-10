@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, Moon, Sun, X } from 'lucide-react';
+import { Search, Moon, Sun, X, Github, Twitter } from 'lucide-react';
 import Timeline from './components/Timeline';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
 import { debounce } from './utils';
@@ -11,14 +11,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   
-  // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [uniqueModalities, setUniqueModalities] = useState([]);
   const [selectedModalities, setSelectedModalities] = useState([]);
 
-  // UI State
   const [expandedModel, setExpandedModel] = useState(null);
 
   useEffect(() => {
@@ -89,18 +87,32 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>🤗 Transformers Timeline</h1>
-          <button 
-            className="theme-toggle" 
-            onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
+          <h1>Transformers Timeline</h1>
+          
+          {/* --- NEW HEADER ACTIONS CONTAINER --- */}
+          <div className="header-actions">
+            <div className="header-socials">
+              <a href="https://github.com/AlanPonnachan" target="_blank" rel="noopener noreferrer" title="GitHub">
+                <Github size={20} />
+              </a>
+              <a href="https://x.com/alan_ponnachan" target="_blank" rel="noopener noreferrer" title="Twitter">
+                <Twitter size={20} />
+              </a>
+            </div>
+            <button 
+              className="theme-toggle" 
+              onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+          </div>
+          {/* --- END OF NEW CONTAINER --- */}
         </div>
       </header>
 
       <div className="filters-bar">
+        {/* ... (filter bar content remains the same) ... */}
         <div className="search-box">
           <Search size={18} />
           <input
@@ -117,33 +129,22 @@ function App() {
             </button>
           )}
         </div>
-
         <div className="date-filters">
           <div className="date-input">
             <label>From</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div className="date-input">
             <label>To</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
-
         <MultiSelectDropdown
           label="Modality"
           options={uniqueModalities}
           selectedOptions={selectedModalities}
           onChange={setSelectedModalities}
         />
-
         <div className="results-count">
           <span className="count">{filteredModels.length}</span>
           <span className="label">/ {allModels.length} models</span>
@@ -155,6 +156,8 @@ function App() {
         expandedModel={expandedModel}
         onToggleExpand={handleToggleExpand}
       />
+      
+      {/* The footer has been removed */}
     </div>
   );
 }
