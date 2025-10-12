@@ -1,16 +1,20 @@
-# React + Vite
+#  Transformers Model Timeline
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive web application to visualize the release history of models from the Hugging Face Transformers library.
 
-Currently, two official plugins are available:
+### 🚀 **[View the Live Demo Here](https://AlanPonnachan.github.io/transformers-timeline/)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+![Transformers Timeline Screenshot](https://raw.githubusercontent.com/AlanPonnachan/transformers-timeline/main/public/web_ss.png)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+-   **Interactive Timeline:** A visually engaging, centered timeline to explore hundreds of models.
+-   **High-Performance Virtualization:** Smoothly scrolls through over 400+ data points without lag, thanks to virtualization that only renders visible items.
+-   **Advanced Filtering:** Instantly filter models by name, date range, or multiple modalities.
+-   **Click-to-Expand:** Click on any model card to see its full description and supported tasks, rendered from Markdown.
+-   **Modern UI:** A clean, responsive user interface with a dark mode toggle.
+
+
